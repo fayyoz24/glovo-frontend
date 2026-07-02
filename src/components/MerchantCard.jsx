@@ -1,0 +1,42 @@
+import { Link } from "react-router-dom";
+import { Star } from "lucide-react";
+import { merchantTypeLabel } from "../utils/merchantTypes";
+
+export default function MerchantCard({ merchant }) {
+  const closed = merchant.status && merchant.status !== "active";
+  return (
+    <Link
+      to={`/merchants/${merchant.id}`}
+      className="group overflow-hidden rounded-tile border-2 border-ink/10 bg-white shadow-tile transition hover:-translate-y-0.5 hover:border-ink/25 hover:shadow-card"
+    >
+      <div className="relative h-28 w-full overflow-hidden bg-sand">
+        {merchant.logo ? (
+          <img
+            src={merchant.logo}
+            alt=""
+            className="h-full w-full object-cover transition group-hover:scale-105"
+          />
+        ) : (
+          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-marigold-light to-sand font-display text-2xl text-marigold-dark">
+            {merchant.name?.[0]?.toUpperCase()}
+          </div>
+        )}
+        {closed && (
+          <div className="absolute inset-0 grid place-items-center bg-ink/60 text-xs font-semibold uppercase tracking-wide text-paper">
+            Yopiq
+          </div>
+        )}
+      </div>
+      <div className="space-y-1 p-3">
+        <h3 className="truncate font-display text-sm text-ink">{merchant.name}</h3>
+        <div className="flex items-center justify-between text-xs text-ink/60">
+          <span>{merchantTypeLabel(merchant.type)}</span>
+          <span className="inline-flex items-center gap-0.5 font-semibold text-ink">
+            <Star size={12} className="fill-marigold text-marigold" />
+            {Number(merchant.rating_avg || 0).toFixed(1)}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
