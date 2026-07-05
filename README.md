@@ -1,6 +1,6 @@
-# Dasturxon — Glovo UZ mijoz ilovasi (frontend)
+# Dasturxon — mijoz ilovasi (frontend)
 
-`glovo_uz` Django backend’i uchun yozilgan **mijoz (customer)** frontend’i.
+`dasturxon` Django backend’i uchun yozilgan **mijoz (customer)** frontend’i.
 React 19 + Vite + React Router 7 + Tailwind CSS asosida qurilgan, backend’dagi
 `apps/accounts`, `apps/merchants`, `apps/catalog`, `apps/carts`, `apps/orders`,
 `apps/locations`, `apps/reviews` app’larining REST API’lariga mos yozilgan.
