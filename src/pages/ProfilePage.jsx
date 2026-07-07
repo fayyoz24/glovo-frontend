@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Plus, Star, Pencil, Trash2, Loader2 } from "lucide-react";
+import { LogOut, MapPin, Plus, Star, Pencil, Trash2, Loader2, Bike } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { locationsApi } from "../api/locations";
@@ -223,6 +223,15 @@ export default function ProfilePage() {
           </div>
         )}
       </section>
+
+      {user?.role === "courier" && (
+        <button
+          onClick={() => navigate("/courier")}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-ceramic py-3 text-sm font-display text-white shadow-tile transition hover:bg-ceramic-dark"
+        >
+          <Bike size={16} /> Kuryer paneliga o'tish
+        </button>
+      )}
 
       <button
         onClick={handleLogout}
