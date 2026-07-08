@@ -17,6 +17,12 @@ import CourierHomePage from "./pages/courier/CourierHomePage";
 import CourierOrdersPage from "./pages/courier/CourierOrdersPage";
 import CourierEarningsPage from "./pages/courier/CourierEarningsPage";
 import CourierProfilePage from "./pages/courier/CourierProfilePage";
+import MerchantGuard from "./components/merchant/MerchantGuard";
+import MerchantLayout from "./components/merchant/MerchantLayout";
+import MerchantHomePage from "./pages/merchant/MerchantHomePage";
+import MerchantActiveOrdersPage from "./pages/merchant/MerchantActiveOrdersPage";
+import MerchantHistoryPage from "./pages/merchant/MerchantHistoryPage";
+import MerchantProfilePage from "./pages/merchant/MerchantProfilePage";
 
 export default function App() {
   return (
@@ -35,6 +41,20 @@ export default function App() {
         <Route path="orders" element={<CourierOrdersPage />} />
         <Route path="earnings" element={<CourierEarningsPage />} />
         <Route path="profile" element={<CourierProfilePage />} />
+      </Route>
+
+      <Route
+        path="/merchant"
+        element={
+          <MerchantGuard>
+            <MerchantLayout />
+          </MerchantGuard>
+        }
+      >
+        <Route index element={<MerchantHomePage />} />
+        <Route path="active" element={<MerchantActiveOrdersPage />} />
+        <Route path="history" element={<MerchantHistoryPage />} />
+        <Route path="profile" element={<MerchantProfilePage />} />
       </Route>
 
       <Route element={<Layout />}>

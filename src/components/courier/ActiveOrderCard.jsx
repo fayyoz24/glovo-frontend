@@ -2,7 +2,6 @@ import { Loader2, Navigation, PackageCheck, Store, MapPin } from "lucide-react";
 import { useCourier } from "../../context/CourierContext";
 import { formatSum } from "../../utils/format";
 import StatusBadge from "../StatusBadge";
-import NavigateSheet from "./NavigateSheet";
 
 export default function ActiveOrderCard({ order }) {
   const { markPickedUp, markDelivered, busy } = useCourier();
@@ -29,8 +28,6 @@ export default function ActiveOrderCard({ order }) {
         </span>
         <span className="font-display text-ceramic-dark">{formatSum(order.total_amount)}</span>
       </div>
-
-      {(isAssigned || isOnTheWay) && <NavigateSheet order={order} />}
 
       {isAssigned && (
         <button
