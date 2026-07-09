@@ -6,7 +6,7 @@ const EMPTY = {
   title: "",
   address_line: "",
   district: "",
-  city: "Toshkent",
+  city: "Qarshi",
   landmark: "",
   entrance: "",
   floor: "",
