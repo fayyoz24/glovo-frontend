@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { Loader2, Store, ArrowLeft } from "lucide-react";
 import { MerchantProvider, useMerchant } from "../../context/MerchantContext";
 import MerchantBottomNav from "./MerchantBottomNav";
+import BranchSetupForm from "./BranchSetupForm";
 
 export default function MerchantLayout() {
   return (
@@ -51,12 +52,14 @@ function MerchantLayoutInner() {
               <p className="mt-1 text-sm text-ink/50">Iltimos, qo'llab-quvvatlash bilan bog'laning.</p>
             </div>
           </div>
+        ) : !profile.branch ? (
+          <BranchSetupForm />
         ) : (
           <Outlet />
         )}
       </main>
 
-      <MerchantBottomNav />
+      {profile?.branch && <MerchantBottomNav />}
     </div>
   );
 }

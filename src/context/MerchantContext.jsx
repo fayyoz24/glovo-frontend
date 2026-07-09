@@ -81,7 +81,7 @@ export function MerchantProvider({ children }) {
   }, [refreshProfile]);
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || !profile.branch) return;
     refreshOrders();
 
     pollTimerRef.current = setInterval(() => refreshOrders({ silent: true }), POLL_INTERVAL_MS);

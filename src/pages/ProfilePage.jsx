@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Plus, Star, Pencil, Trash2, Loader2, Bike } from "lucide-react";
+import { LogOut, MapPin, Plus, Star, Pencil, Trash2, Loader2, Bike, Store } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { locationsApi } from "../api/locations";
@@ -230,6 +230,24 @@ export default function ProfilePage() {
           className="flex w-full items-center justify-center gap-2 rounded-full bg-ceramic py-3 text-sm font-display text-white shadow-tile transition hover:bg-ceramic-dark"
         >
           <Bike size={16} /> Kuryer paneliga o'tish
+        </button>
+      )}
+
+      {(user?.role === "merchant_owner" || user?.role === "merchant_manager") && (
+        <button
+          onClick={() => navigate("/merchant")}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-marigold py-3 text-sm font-display text-ink shadow-tile transition hover:bg-marigold-dark"
+        >
+          <Store size={16} /> Do'kon paneliga o'tish
+        </button>
+      )}
+
+      {user?.role === "customer" && (
+        <button
+          onClick={() => navigate("/merchant/status")}
+          className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-marigold py-3 text-sm font-display text-marigold-dark transition hover:bg-marigold-light"
+        >
+          <Store size={16} /> O'z do'koningizni oching
         </button>
       )}
 

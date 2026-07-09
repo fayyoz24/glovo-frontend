@@ -21,7 +21,7 @@ export default function MerchantGuard({ children }) {
   }
 
   if (!MERCHANT_ROLES.includes(user?.role)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/merchant/status" replace />;
   }
 
   return children;

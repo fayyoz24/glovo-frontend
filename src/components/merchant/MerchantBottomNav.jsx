@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Bell, ListOrdered, History, Store } from "lucide-react";
+import { Bell, ListOrdered, History, Store, Package } from "lucide-react";
 import { useMerchant } from "../../context/MerchantContext";
 
 export default function MerchantBottomNav() {
@@ -11,6 +11,7 @@ export default function MerchantBottomNav() {
       <ul className="mx-auto flex max-w-5xl items-stretch justify-between px-1 pb-[env(safe-area-inset-bottom)]">
         <NavItem to="/merchant" label="Yangi" icon={Bell} end badge={newCount} />
         <NavItem to="/merchant/active" label="Faol" icon={ListOrdered} />
+        <NavItem to="/merchant/products" label="Mahsulot" icon={Package} />
         <NavItem to="/merchant/history" label="Tarix" icon={History} />
         <NavItem to="/merchant/profile" label="Do'kon" icon={Store} />
       </ul>
