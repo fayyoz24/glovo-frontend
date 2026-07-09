@@ -1,5 +1,19 @@
 import { api } from "./client";
 
+// Product payload'ida `image` File bo'lsa (yoki boolean false — o'chirish uchun),
+// so'rovni multipart/form-data qilib yuboramiz, aks holda oddiy JSON.
+function toProductBody(payload) {
+  const hasFile = payload?.image instanceof File;
+  if (!hasFile) return payload;
+
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    formData.append(key, value);
+  });
+  return formData;
+}
+
 // Merchant paneli — do'kon xodimi (merchant_owner / merchant_manager) uchun
 // buyurtmalarni boshqarish. Backend: apps.orders (merchant/*), apps.merchants.
 export const merchantApi = {
@@ -34,8 +48,9 @@ export const merchantApi = {
   // Mahsulotlar
   categories: () => api.get("/categories/", undefined, { auth: false }),
   products: (q) => api.get("/merchant/products/", q ? { q } : undefined),
-  createProduct: (payload) => api.post("/merchant/products/create/", payload),
-  updateProduct: (productId, payload) => api.patch(`/merchant/products/${productId}/`, payload),
+  createProduct: (payload) => api.post("/merchant/products/create/", toProductBody(payload)),
+  updateProduct: (productId, payload) =>
+    api.patch(`/merchant/products/${productId}/`, toProductBody(payload)),
   toggleProductAvailability: (productId, is_available) =>
     api.post(`/merchant/products/${productId}/toggle-availability/`, { is_available }),
 
