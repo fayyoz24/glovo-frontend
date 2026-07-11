@@ -33,7 +33,11 @@ export default function MerchantPage() {
       })
       .catch(() => navigate("/", { replace: true }))
       .finally(() => setLoadingMerchant(false));
-    catalogApi.categories().then(setCategories).catch(() => setCategories([]));
+    // merchant bo'yicha filterlash — backend shu do'kon turiga mos kategoriyalarni qaytaradi
+    catalogApi
+      .categories(undefined, { merchant: id })
+      .then(setCategories)
+      .catch(() => setCategories([]));
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

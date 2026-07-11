@@ -55,9 +55,18 @@ export default function ProductModal({ productId, onClose }) {
     [product, variantId]
   );
 
+  const basePrice = useMemo(() => {
+    if (!product) return 0;
+    if (product.has_discount) return Number(product.discounted_price);
+    return Number(product.base_price_display ?? product.base_price);
+  }, [product]);
+
+  const inStock = product ? product.in_stock !== false : true;
+  const isOrderable = product ? product.is_available !== false && inStock : false;
+
   const unitPrice = useMemo(() => {
     if (!product) return 0;
-    let price = activeVariant ? Number(activeVariant.final_price) : Number(product.base_price);
+    let price = activeVariant ? Number(activeVariant.final_price) : basePrice;
     (product.modifier_groups || []).forEach((g) => {
       const chosen = selected[g.id];
       if (!chosen) return;
@@ -147,9 +156,9 @@ export default function ProductModal({ productId, onClose }) {
         ) : (
           <>
             <div className="flex-1 overflow-y-auto px-4 py-4">
-              {product.images?.[0]?.image && (
+              {product.image && (
                 <img
-                  src={product.images[0].image}
+                  src={product.image}
                   alt=""
                   className="mb-4 h-44 w-full rounded-tile object-cover"
                 />
@@ -158,9 +167,26 @@ export default function ProductModal({ productId, onClose }) {
               {product.description_uz && (
                 <p className="mt-1 text-sm text-ink/60">{product.description_uz}</p>
               )}
-              <p className="mt-2 font-mono text-base font-semibold text-ceramic-dark">
-                {formatSum(activeVariant ? activeVariant.final_price : product.base_price)}
-              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <p className="font-mono text-base font-semibold text-ceramic-dark">
+                  {formatSum(activeVariant ? activeVariant.final_price : basePrice)}
+                </p>
+                {!activeVariant && product.has_discount && (
+                  <>
+                    <p className="font-mono text-sm text-ink/40 line-through">
+                      {formatSum(product.base_price_display ?? product.base_price)}
+                    </p>
+                    <span className="rounded-full bg-pomegranate-light px-2 py-0.5 text-[10px] font-bold text-pomegranate-dark">
+                      -{product.discount_percent}%
+                    </span>
+                  </>
+                )}
+              </div>
+              {!inStock && (
+                <p className="mt-1 text-xs font-semibold text-pomegranate">
+                  Mahsulot omborda tugagan
+                </p>
+              )}
 
               {product.variants?.length > 1 && (
                 <div className="mt-5">
@@ -259,11 +285,13 @@ export default function ProductModal({ productId, onClose }) {
               <QuantityStepper qty={qty} onDecrease={() => setQty((q) => Math.max(1, q - 1))} onIncrease={() => setQty((q) => q + 1)} />
               <button
                 onClick={handleAdd}
-                disabled={submitting || product.is_available === false}
+                disabled={submitting || !isOrderable}
                 className="flex flex-1 items-center justify-center gap-2 rounded-full bg-marigold py-3 font-display text-sm text-ink shadow-tile transition hover:bg-marigold-dark disabled:opacity-40"
               >
                 {submitting && <Loader2 size={16} className="animate-spin" />}
-                Savatga qo'shish · {formatSum(unitPrice * qty)}
+                {isOrderable
+                  ? `Savatga qo'shish · ${formatSum(unitPrice * qty)}`
+                  : "Mavjud emas"}
               </button>
             </div>
           </>

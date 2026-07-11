@@ -67,7 +67,10 @@ export async function request(path, opts = {}) {
     if (qs) url += `?${qs}`;
   }
 
-  const headers = { "Content-Type": "application/json" };
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+
+  const headers = {};
+  if (!isFormData) headers["Content-Type"] = "application/json";
   if (auth) {
     const access = tokenStore.getAccess();
     if (access) headers.Authorization = `Bearer ${access}`;
@@ -78,7 +81,7 @@ export async function request(path, opts = {}) {
     res = await fetch(url, {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
     });
   } catch (networkErr) {
     throw new ApiError("Serverga ulanib bo'lmadi. Internetni tekshiring.", { status: 0 });

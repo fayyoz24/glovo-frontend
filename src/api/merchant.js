@@ -1,5 +1,19 @@
 import { api } from "./client";
 
+// Payloadda istalgan maydon (image, logo, cover, ...) File bo'lsa,
+// so'rovni multipart/form-data qilib yuboramiz, aks holda oddiy JSON.
+function toProductBody(payload) {
+  const hasFile = Object.values(payload || {}).some((v) => v instanceof File);
+  if (!hasFile) return payload;
+
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    formData.append(key, value);
+  });
+  return formData;
+}
+
 // Merchant paneli — do'kon xodimi (merchant_owner / merchant_manager) uchun
 // buyurtmalarni boshqarish. Backend: apps.orders (merchant/*), apps.merchants.
 export const merchantApi = {
@@ -14,8 +28,10 @@ export const merchantApi = {
   profile: () => api.get("/merchant/profile/"),
 
   // Do'konimning to'liq ma'lumoti / tahrirlash
+  // logo yoki cover sifatida File berilsa (masalan <input type="file"/> dan),
+  // avtomatik multipart/form-data qilib yuboriladi — aks holda oddiy JSON.
   getMine: () => api.get("/merchant/mine/"),
-  updateMine: (payload) => api.patch("/merchant/mine/", payload),
+  updateMine: (payload) => api.patch("/merchant/mine/", toProductBody(payload)),
 
   // Filialim — yaratish (birinchi marta) va tahrirlash
   createBranch: (payload) => api.post("/merchant/branch/", payload),
@@ -32,10 +48,14 @@ export const merchantApi = {
     api.post("/merchant/branch/toggle-orders/", { accepting_orders }),
 
   // Mahsulotlar
-  categories: () => api.get("/categories/", undefined, { auth: false }),
+  // Login qilgan do'kon egasining o'z do'kon turiga (merchant_type) mos kategoriyalar —
+  // backend request.user'dan avtomatik aniqlaydi, shuning uchun auth kerak va
+  // hech qanday merchant/merchant_type parametri yuborilmaydi.
+  categories: () => api.get("/merchant/categories/"),
   products: (q) => api.get("/merchant/products/", q ? { q } : undefined),
-  createProduct: (payload) => api.post("/merchant/products/create/", payload),
-  updateProduct: (productId, payload) => api.patch(`/merchant/products/${productId}/`, payload),
+  createProduct: (payload) => api.post("/merchant/products/create/", toProductBody(payload)),
+  updateProduct: (productId, payload) =>
+    api.patch(`/merchant/products/${productId}/`, toProductBody(payload)),
   toggleProductAvailability: (productId, is_available) =>
     api.post(`/merchant/products/${productId}/toggle-availability/`, { is_available }),
 
