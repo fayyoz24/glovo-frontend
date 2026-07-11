@@ -10,7 +10,13 @@ export default function MerchantCard({ merchant }) {
       className="group overflow-hidden rounded-tile border-2 border-ink/10 bg-white shadow-tile transition hover:-translate-y-0.5 hover:border-ink/25 hover:shadow-card"
     >
       <div className="relative h-28 w-full overflow-hidden bg-sand">
-        {merchant.logo ? (
+        {merchant.cover ? (
+          <img
+            src={merchant.cover}
+            alt=""
+            className="h-full w-full object-cover transition group-hover:scale-105"
+          />
+        ) : merchant.logo ? (
           <img
             src={merchant.logo}
             alt=""
@@ -26,8 +32,13 @@ export default function MerchantCard({ merchant }) {
             Yopiq
           </div>
         )}
+        {merchant.cover && merchant.logo && (
+          <div className="absolute -bottom-4 left-3 grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-white bg-white shadow-tile">
+            <img src={merchant.logo} alt="" className="h-full w-full object-contain" />
+          </div>
+        )}
       </div>
-      <div className="space-y-1 p-3">
+      <div className={`space-y-1 p-3 ${merchant.cover && merchant.logo ? "pt-5" : ""}`}>
         <h3 className="truncate font-display text-sm text-ink">{merchant.name}</h3>
         <div className="flex items-center justify-between text-xs text-ink/60">
           <span>{merchantTypeLabel(merchant.type)}</span>
