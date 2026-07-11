@@ -81,16 +81,23 @@ export default function MerchantPage() {
   return (
     <div className="space-y-5">
       <section className="overflow-hidden rounded-tile border-2 border-ink/10 bg-white shadow-tile">
-        <div className="h-32 w-full bg-sand">
+        <div className="relative h-40 w-full bg-sand">
           {merchant.cover ? (
             <img src={merchant.cover} alt="" className="h-full w-full object-cover" />
+          ) : merchant.logo ? (
+            <img src={merchant.logo} alt="" className="h-full w-full object-cover" />
           ) : (
             <div className="grid h-full w-full place-items-center bg-gradient-to-br from-marigold-light to-sand font-display text-4xl text-marigold-dark">
               {merchant.name[0]?.toUpperCase()}
             </div>
           )}
+          {merchant.cover && merchant.logo && (
+            <div className="absolute -bottom-6 left-4 grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-white bg-white shadow-tile">
+              <img src={merchant.logo} alt="" className="h-full w-full object-contain" />
+            </div>
+          )}
         </div>
-        <div className="space-y-2 p-4">
+        <div className={`space-y-2 p-4 ${merchant.cover && merchant.logo ? "pt-8" : ""}`}>
           <div className="flex items-start justify-between gap-3">
             <h1 className="font-display text-xl text-ink">{merchant.name}</h1>
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-marigold-light px-2.5 py-1 text-xs font-bold text-marigold-dark">
