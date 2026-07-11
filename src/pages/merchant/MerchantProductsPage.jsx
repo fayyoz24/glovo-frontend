@@ -233,10 +233,6 @@ function ProductForm({ product, categoryOptions, onCancel, onSaved }) {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 200 * 1024) {
-      toast.error("Rasm hajmi 200 KB dan oshmasligi kerak");
-      return;
-    }
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   };
@@ -300,7 +296,7 @@ function ProductForm({ product, categoryOptions, onCancel, onSaved }) {
             <ImagePlus size={20} />
           )}
         </button>
-        <p className="mt-1 text-[11px] text-ink/40">Maksimal hajm — 200 KB</p>
+        <p className="mt-1 text-[11px] text-ink/40">JPG yoki PNG — hajmi katta bo'lsa avtomatik siqiladi</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

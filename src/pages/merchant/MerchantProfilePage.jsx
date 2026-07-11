@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { LogOut, MapPin, Phone, Clock, Store, Pencil, Loader2, X, Check, Plus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { LogOut, MapPin, Phone, Clock, Store, Pencil, Loader2, X, Check, Plus, ImagePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMerchant } from "../../context/MerchantContext";
 import { useAuth } from "../../context/AuthContext";
@@ -29,12 +29,19 @@ export default function MerchantProfilePage() {
   const toast = useToast();
   const branch = profile?.branch;
 
+  const logoInputRef = useRef(null);
+  const coverInputRef = useRef(null);
+
   const [editingStore, setEditingStore] = useState(false);
   const [editingBranch, setEditingBranch] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [storeForm, setStoreForm] = useState(null);
   const [branchForm, setBranchForm] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(null);
 
   const startEditStore = () => {
     setStoreForm({
@@ -42,7 +49,25 @@ export default function MerchantProfilePage() {
       type: profile?.merchant_type || "food",
       description: profile?.merchant_description || "",
     });
+    setLogoFile(null);
+    setLogoPreview(profile?.merchant_logo || null);
+    setCoverFile(null);
+    setCoverPreview(profile?.merchant_cover || null);
     setEditingStore(true);
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const handleCoverChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
   };
 
   const startEditBranch = () => {
@@ -63,10 +88,17 @@ export default function MerchantProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await merchantApi.updateMine(storeForm);
+      const payload = {
+        ...storeForm,
+        ...(logoFile ? { logo: logoFile } : {}),
+        ...(coverFile ? { cover: coverFile } : {}),
+      };
+      await merchantApi.updateMine(payload);
       await refreshProfile();
       toast.success("Do'kon ma'lumotlari yangilandi");
       setEditingStore(false);
+      setLogoFile(null);
+      setCoverFile(null);
     } catch (err) {
       toast.error(err.message || "Saqlab bo'lmadi");
     } finally {
@@ -107,8 +139,12 @@ export default function MerchantProfilePage() {
       <div className="space-y-3 rounded-tile border-2 border-ink/10 bg-white p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-marigold text-ink">
-              <Store size={20} />
+            <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-marigold text-ink">
+              {profile?.merchant_logo ? (
+                <img src={profile.merchant_logo} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <Store size={20} />
+              )}
             </div>
             <div className="min-w-0">
               <p className="truncate font-display text-lg text-ink">{profile?.merchant_name}</p>
@@ -137,6 +173,51 @@ export default function MerchantProfilePage() {
 
         {editingStore && storeForm && (
           <form onSubmit={saveStore} className="space-y-3 border-t-2 border-ink/5 pt-3">
+            <div className="flex gap-4">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-ink/60">Logo</label>
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-ink/20 bg-sand text-ink/40 hover:border-ceramic"
+                >
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <ImagePlus size={18} />
+                  )}
+                </button>
+              </div>
+              <div className="flex-1">
+                <label className="mb-1 block text-xs font-semibold text-ink/60">Muqova (banner)</label>
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverChange}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  className="flex h-16 w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-ink/20 bg-sand text-ink/40 hover:border-ceramic"
+                >
+                  {coverPreview ? (
+                    <img src={coverPreview} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <ImagePlus size={18} />
+                  )}
+                </button>
+              </div>
+            </div>
+            <p className="text-[11px] text-ink/40">JPG yoki PNG — hajmi katta bo'lsa avtomatik siqiladi</p>
             <Field label="Do'kon nomi">
               <input
                 value={storeForm.name}

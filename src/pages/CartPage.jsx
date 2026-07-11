@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, ShoppingBag, Tag, Loader2, ArrowRight } from "lucide-react";
+import { Trash2, ShoppingBag, Tag, Loader2, ArrowRight, PlusCircle } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { formatSum } from "../utils/format";
 import EmptyState from "../components/EmptyState";
@@ -149,6 +149,14 @@ export default function CartPage() {
         <div className="my-1 border-t-2 border-dashed border-ink/10" />
         <Row label="Jami" value={cart.total} bold />
       </div>
+
+      <button
+        onClick={() => navigate(-1)}
+        className="flex w-full items-center justify-center gap-2 rounded-tile border-2 border-dashed border-ink/15 bg-marigold/10 py-3 font-body text-sm font-semibold text-ink/70 transition hover:border-marigold hover:bg-marigold/20 hover:text-ink"
+      >
+        <PlusCircle size={16} className="text-marigold-dark" />
+        Buyurtma qilishdan avval hech narsa esdan chiqmadimi?
+      </button>
 
       <button
         onClick={() => navigate("/checkout")}
