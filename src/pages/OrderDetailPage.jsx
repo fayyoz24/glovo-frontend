@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2, XCircle, Star } from "lucide-react";
 import { ordersApi } from "../api/orders";
+import { connectOrderSocket } from "../api/orderSocket";
 import StatusBadge from "../components/StatusBadge";
 import OrderTimeline from "../components/OrderTimeline";
+import OrderTrackingMap from "../components/OrderTrackingMap";
 import ReviewForm from "../components/ReviewForm";
 import { useToast } from "../context/ToastContext";
 import {
@@ -23,6 +25,9 @@ const ACTIVE_STATUSES = [
   "on_the_way",
 ];
 
+// Kuryer xaritada ko'rsatiladigan holatlar — u allaqachon yo'lda bo'lgan bosqichlar
+const TRACKABLE_STATUSES = ["courier_assigned", "picked_up", "on_the_way"];
+
 export default function OrderDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -32,6 +37,7 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [showReview, setShowReview] = useState(false);
+  const [courierLocation, setCourierLocation] = useState(null);
 
   const load = useCallback(() => {
     return ordersApi
@@ -49,6 +55,24 @@ export default function OrderDetailPage() {
     const interval = setInterval(load, 8000);
     return () => clearInterval(interval);
   }, [order, load]);
+
+  // Buyurtma boshlang'ich yuklanganda kuryerning oxirgi ma'lum joylashuvini olamiz —
+  // WebSocket ulanmaguncha xarita bo'sh turmasin
+  useEffect(() => {
+    if (order?.courier_lat && order?.courier_lng) {
+      setCourierLocation({ lat: Number(order.courier_lat), lng: Number(order.courier_lng) });
+    }
+  }, [order?.courier_lat, order?.courier_lng]);
+
+  // Kuryer yo'lda bo'lgan bosqichlarda real-time joylashuvni WebSocket orqali olamiz
+  useEffect(() => {
+    if (!order || !TRACKABLE_STATUSES.includes(order.status)) return;
+    const cleanup = connectOrderSocket(order.id, {
+      onLocation: (coords) => setCourierLocation(coords),
+      onStatus: () => load(),
+    });
+    return cleanup;
+  }, [order?.id, order?.status, load]);
 
   const cancelOrder = async () => {
     setCancelling(true);
@@ -88,6 +112,33 @@ export default function OrderDetailPage() {
       <section className="rounded-tile border-2 border-ink/10 bg-white p-4">
         <OrderTimeline status={order.status} />
       </section>
+
+      {TRACKABLE_STATUSES.includes(order.status) && (
+        <section className="space-y-2 rounded-tile border-2 border-ink/10 bg-white p-4">
+          <h2 className="font-body text-sm font-bold text-ink">
+            {order.courier_name ? `${order.courier_name} yo'lda` : "Kuryer yo'lda"}
+          </h2>
+          <OrderTrackingMap
+            branch={
+              order.branch_lat && order.branch_lng
+                ? { lat: Number(order.branch_lat), lng: Number(order.branch_lng) }
+                : null
+            }
+            destination={
+              order.address_snapshot?.latitude && order.address_snapshot?.longitude
+                ? {
+                    lat: Number(order.address_snapshot.latitude),
+                    lng: Number(order.address_snapshot.longitude),
+                  }
+                : null
+            }
+            courier={courierLocation}
+          />
+          {!courierLocation && (
+            <p className="text-xs text-ink/40">Kuryer joylashuvi hali aniqlanmadi.</p>
+          )}
+        </section>
+      )}
 
       <section className="space-y-2 rounded-tile border-2 border-ink/10 bg-white p-4">
         <h2 className="mb-1 font-body text-sm font-bold text-ink">Mahsulotlar</h2>
