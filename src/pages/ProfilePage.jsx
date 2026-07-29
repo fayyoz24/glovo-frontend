@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { LogOut, MapPin, Plus, Star, Pencil, Trash2, Loader2, Bike, Store } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -16,6 +16,9 @@ export default function ProfilePage() {
   const { user, logout, updateProfile } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const requirePhoneParam = searchParams.get("requirePhone") === "1";
+  const requirePhone = requirePhoneParam && !user?.phone;
 
   const [form, setForm] = useState({
     full_name: user?.full_name || "",
@@ -43,6 +46,10 @@ export default function ProfilePage() {
     try {
       await updateProfile(form);
       toast.success("Profil yangilandi");
+      if (requirePhoneParam && form.phone) {
+        toast.info("Rahmat! Endi buyurtmani davom ettirishingiz mumkin.");
+        navigate("/checkout", { replace: true });
+      }
     } catch (e) {
       toast.error(e.message || "Saqlab bo'lmadi");
     } finally {
@@ -99,6 +106,12 @@ export default function ProfilePage() {
     <div className="space-y-6 pb-6">
       <h1 className="font-display text-xl text-ink">Profil</h1>
 
+      {requirePhone && (
+        <div className="rounded-tile border-2 border-marigold bg-marigold-light px-4 py-3 text-sm font-semibold text-marigold-dark">
+          Iltimos, davom etish uchun telefon raqamingizni kiriting 🙂
+        </div>
+      )}
+
       <form onSubmit={saveProfile} className="space-y-3 rounded-tile border-2 border-ink/10 bg-white p-4">
         <div className="flex items-center gap-3">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-marigold-light font-display text-lg text-marigold-dark">
@@ -116,7 +129,12 @@ export default function ProfilePage() {
 
         <Field label="To'liq ism" value={form.full_name} onChange={(v) => setForm((f) => ({ ...f, full_name: v }))} />
         <Field label="Email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} type="email" />
-        <Field label="Telefon" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+        <Field
+          label="Telefon"
+          value={form.phone}
+          onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
+          highlight={requirePhone}
+        />
 
         <div>
           <p className="mb-1 text-xs font-semibold text-ink/60">Til</p>
@@ -261,7 +279,7 @@ export default function ProfilePage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text" }) {
+function Field({ label, value, onChange, type = "text", highlight = false }) {
   return (
     <label className="block text-xs font-semibold text-ink/60">
       {label}
@@ -269,7 +287,10 @@ function Field({ label, value, onChange, type = "text" }) {
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-xl border-2 border-ink/15 bg-paper px-3 py-2 text-sm font-medium text-ink outline-none focus:border-ceramic"
+        autoFocus={highlight}
+        className={`mt-1 w-full rounded-xl border-2 bg-paper px-3 py-2 text-sm font-medium text-ink outline-none focus:border-ceramic ${
+          highlight ? "border-marigold" : "border-ink/15"
+        }`}
       />
     </label>
   );
