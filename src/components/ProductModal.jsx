@@ -14,6 +14,7 @@ export default function ProductModal({ productId, onClose }) {
   const [variantId, setVariantId] = useState(null);
   const [selected, setSelected] = useState({}); // groupId -> Set(optionId)
   const [qty, setQty] = useState(1);
+  const [prevQty, setPrevQty] = useState(null);
   const [activeStep, setActiveStep] = useState(1);
   const [instructions, setInstructions] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -44,6 +45,7 @@ export default function ProductModal({ productId, onClose }) {
         });
         setSelected(initial);
         setQty(1);
+        setPrevQty(null);
         setActiveStep(1);
       })
       .catch(() => {
@@ -300,8 +302,19 @@ export default function ProductModal({ productId, onClose }) {
                   step={activeStep}
                   unitType={product.unit_type}
                   min={activeStep}
-                  onDecrease={() => setQty((q) => Math.max(activeStep, +(q - activeStep).toFixed(2)))}
-                  onIncrease={() => setQty((q) => +(q + activeStep).toFixed(2))}
+                  canUndo={prevQty !== null}
+                  onUndo={() => {
+                    setQty(prevQty);
+                    setPrevQty(null);
+                  }}
+                  onDecrease={() => {
+                    setPrevQty(qty);
+                    setQty((q) => Math.max(activeStep, +(q - activeStep).toFixed(2)));
+                  }}
+                  onIncrease={() => {
+                    setPrevQty(qty);
+                    setQty((q) => +(q + activeStep).toFixed(2));
+                  }}
                 />
                 <button
                   onClick={handleAdd}

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LogOut, MapPin, Plus, Star, Pencil, Trash2, Loader2, Bike, Store } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -16,6 +16,9 @@ export default function ProfilePage() {
   const { user, logout, updateProfile } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const phoneInputRef = useRef(null);
+  const [highlightPhone, setHighlightPhone] = useState(false);
 
   const [form, setForm] = useState({
     full_name: user?.full_name || "",
@@ -29,6 +32,18 @@ export default function ProfilePage() {
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [addingNew, setAddingNew] = useState(false);
+
+  // Checkout sahifasidan "telefon raqam kerak" sababli yo'naltirilganda,
+  // telefon maydoniga avtomatik fokus qilamiz va biroz ajratib ko'rsatamiz.
+  useEffect(() => {
+    if (location.state?.focusPhone) {
+      setHighlightPhone(true);
+      phoneInputRef.current?.focus();
+      phoneInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      const t = setTimeout(() => setHighlightPhone(false), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     locationsApi
@@ -116,7 +131,12 @@ export default function ProfilePage() {
 
         <Field label="To'liq ism" value={form.full_name} onChange={(v) => setForm((f) => ({ ...f, full_name: v }))} />
         <Field label="Email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} type="email" />
-        <Field label="Telefon" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+        <Field label="Telefon" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} inputRef={phoneInputRef} highlight={highlightPhone} />
+        {highlightPhone && (
+          <p className="-mt-2 text-xs font-semibold text-marigold-dark">
+            Buyurtma berish uchun telefon raqamingizni kiriting va saqlang.
+          </p>
+        )}
 
         <div>
           <p className="mb-1 text-xs font-semibold text-ink/60">Til</p>
@@ -261,15 +281,18 @@ export default function ProfilePage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text" }) {
+function Field({ label, value, onChange, type = "text", inputRef, highlight }) {
   return (
     <label className="block text-xs font-semibold text-ink/60">
       {label}
       <input
+        ref={inputRef}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-xl border-2 border-ink/15 bg-paper px-3 py-2 text-sm font-medium text-ink outline-none focus:border-ceramic"
+        className={`mt-1 w-full rounded-xl border-2 bg-paper px-3 py-2 text-sm font-medium text-ink outline-none transition focus:border-ceramic ${
+          highlight ? "border-marigold ring-4 ring-marigold/20" : "border-ink/15"
+        }`}
       />
     </label>
   );

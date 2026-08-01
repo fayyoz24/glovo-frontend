@@ -10,6 +10,7 @@ export default function CartPage() {
   const { cart, loading, busyItemId, updateItem, removeItem, applyPromo, clearCart } = useCart();
   const [promoInput, setPromoInput] = useState("");
   const [applying, setApplying] = useState(false);
+  const [qtyHistory, setQtyHistory] = useState({}); // itemId -> oldingi qty (bitta qadam orqaga qaytarish uchun)
   const navigate = useNavigate();
 
   const hasItems = cart?.items?.length > 0;
@@ -109,13 +110,26 @@ export default function CartPage() {
                 busy={busyItemId === item.id}
                 step={item.qty_step || 1}
                 unitType={item.unit_type}
+                canUndo={qtyHistory[item.id] !== undefined}
+                onUndo={() => {
+                  const prev = qtyHistory[item.id];
+                  if (prev === undefined) return;
+                  setQtyHistory((h) => {
+                    const next = { ...h };
+                    delete next[item.id];
+                    return next;
+                  });
+                  prev > 0 ? updateItem(item.id, prev) : removeItem(item.id);
+                }}
                 onDecrease={() => {
                   const step = Number(item.qty_step || 1);
                   const next = +(Number(item.qty) - step).toFixed(2);
+                  setQtyHistory((h) => ({ ...h, [item.id]: Number(item.qty) }));
                   next > 0 ? updateItem(item.id, next) : removeItem(item.id);
                 }}
                 onIncrease={() => {
                   const step = Number(item.qty_step || 1);
+                  setQtyHistory((h) => ({ ...h, [item.id]: Number(item.qty) }));
                   updateItem(item.id, +(Number(item.qty) + step).toFixed(2));
                 }}
               />

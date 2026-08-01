@@ -1,4 +1,4 @@
-import { Minus, Plus, Loader2 } from "lucide-react";
+import { Minus, Plus, Loader2, Undo2 } from "lucide-react";
 import { formatQty } from "../utils/format";
 
 /**
@@ -6,11 +6,18 @@ import { formatQty } from "../utils/format";
  * kg bilan sotiladigan mahsulotlar uchun `step` prop orqali 0.1 yoki 0.5 kg
  * qadam beriladi (Product.qty_step backenddan keladi — kg narxi 100 000 so'mdan
  * qimmat bo'lsa 0.1, aks holda 0.5).
+ *
+ * `onUndo` berilsa va `canUndo` true bo'lsa, oxirgi bosilgan +/- amalini
+ * (bitta qadamni) bekor qiladigan "orqaga qaytarish" tugmasi chiqadi —
+ * masalan foydalanuvchi +1 kg bosib, keyin fikrini o'zgartirsa, aynan o'sha
+ * bosishni ortga qaytaradi (joriy tanlangan qadamdan qat'i nazar).
  */
 export default function QuantityStepper({
   qty,
   onDecrease,
   onIncrease,
+  onUndo,
+  canUndo = false,
   busy,
   min = 0,
   max = 50,
@@ -22,28 +29,42 @@ export default function QuantityStepper({
   const aboveMax = Number(qty) >= max - 1e-9;
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1">
-      <button
-        type="button"
-        onClick={onDecrease}
-        disabled={busy || belowMin}
-        aria-label="Kamaytirish"
-        className="grid h-7 w-7 place-items-center rounded-full bg-ink text-paper transition disabled:opacity-30"
-      >
-        <Minus size={14} />
-      </button>
-      <span className="min-w-[2.25rem] text-center font-mono text-sm font-semibold tabular-nums">
-        {busy ? <Loader2 size={14} className="mx-auto animate-spin" /> : formatQty(qty, unitType)}
-      </span>
-      <button
-        type="button"
-        onClick={onIncrease}
-        disabled={busy || aboveMax}
-        aria-label="Ko'paytirish"
-        className="grid h-7 w-7 place-items-center rounded-full bg-marigold text-ink transition disabled:opacity-30"
-      >
-        <Plus size={14} />
-      </button>
+    <div className="inline-flex items-center gap-2">
+      {onUndo && (
+        <button
+          type="button"
+          onClick={onUndo}
+          disabled={busy || !canUndo}
+          aria-label="Orqaga qaytarish"
+          title="Oxirgi bosishni bekor qilish"
+          className="grid h-7 w-7 place-items-center rounded-full border-2 border-ink/15 text-ink/50 transition hover:border-ink/30 hover:text-ink disabled:opacity-25"
+        >
+          <Undo2 size={14} />
+        </button>
+      )}
+      <div className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1">
+        <button
+          type="button"
+          onClick={onDecrease}
+          disabled={busy || belowMin}
+          aria-label="Kamaytirish"
+          className="grid h-7 w-7 place-items-center rounded-full bg-ink text-paper transition disabled:opacity-30"
+        >
+          <Minus size={14} />
+        </button>
+        <span className="min-w-[2.25rem] text-center font-mono text-sm font-semibold tabular-nums">
+          {busy ? <Loader2 size={14} className="mx-auto animate-spin" /> : formatQty(qty, unitType)}
+        </span>
+        <button
+          type="button"
+          onClick={onIncrease}
+          disabled={busy || aboveMax}
+          aria-label="Ko'paytirish"
+          className="grid h-7 w-7 place-items-center rounded-full bg-marigold text-ink transition disabled:opacity-30"
+        >
+          <Plus size={14} />
+        </button>
+      </div>
     </div>
   );
 }
