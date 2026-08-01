@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Loader2, Navigation, PackageCheck, Store, Wallet } from "lucide-react";
+import { Loader2, Navigation, PackageCheck, Store, Wallet, MapPin, Home } from "lucide-react";
 import { useCourier } from "../../context/CourierContext";
 import { formatSum } from "../../utils/format";
+import { openNavigation } from "../../utils/navigation";
 import StatusBadge from "../StatusBadge";
 import DeliveryConfirmModal from "./DeliveryConfirmModal";
 
@@ -12,6 +13,11 @@ export default function ActiveOrderCard({ order }) {
   const isAssigned = order.status === "courier_assigned";
   const isOnTheWay = order.status === "picked_up" || order.status === "on_the_way";
   const items = order.items || [];
+
+  const destAddress = order.address_snapshot;
+  const destLat = destAddress?.latitude;
+  const destLng = destAddress?.longitude;
+  const destLine = typeof destAddress === "string" ? destAddress : destAddress?.address_line;
 
   const handleConfirmDelivered = async () => {
     await markDelivered(order.id, { cashConfirmed: order.payment_method === "cash" });
@@ -58,27 +64,56 @@ export default function ActiveOrderCard({ order }) {
       </div>
 
       {isAssigned && (
-        <button
-          onClick={() => markPickedUp(order.id)}
-          disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-ink py-3 text-sm font-display text-paper shadow-tile disabled:opacity-40"
-        >
-          {busy ? <Loader2 size={16} className="animate-spin" /> : <PackageCheck size={16} />}
-          Mahsulotni oldim
-        </button>
+        <>
+          <button
+            type="button"
+            onClick={() => openNavigation(order.branch_lat, order.branch_lng)}
+            className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-ink/15 py-3 text-sm font-semibold text-ink/70"
+          >
+            <Store size={16} /> Do'konga yo'nalish
+          </button>
+          <button
+            onClick={() => markPickedUp(order.id)}
+            disabled={busy}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-ink py-3 text-sm font-display text-paper shadow-tile disabled:opacity-40"
+          >
+            {busy ? <Loader2 size={16} className="animate-spin" /> : <PackageCheck size={16} />}
+            Mahsulotni oldim
+          </button>
+        </>
       )}
 
       {isOnTheWay && (
-        <button
-          onClick={() => setConfirmingDelivery(true)}
-          disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-ceramic py-3 text-sm font-display text-white shadow-tile disabled:opacity-40"
-        >
-          {busy ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
-          {order.payment_method === "cash"
-            ? `Yetkazib berdim (${formatSum(order.total_amount)} naqd oling)`
-            : "Yetkazib berdim"}
-        </button>
+        <>
+          {destLine && (
+            <div className="flex items-start gap-2 rounded-xl bg-paper p-3 text-sm">
+              <Home size={16} className="mt-0.5 shrink-0 text-ink/40" />
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink/40">
+                  Yetkazish manzili
+                </p>
+                <p className="truncate text-ink">{destLine}</p>
+              </div>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => openNavigation(destLat, destLng)}
+            className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-ink/15 py-3 text-sm font-semibold text-ink/70"
+          >
+            <MapPin size={16} /> Yo'lga chiqdik — navigatsiya
+          </button>
+          <button
+            onClick={() => setConfirmingDelivery(true)}
+            disabled={busy}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-ceramic py-3 text-sm font-display text-white shadow-tile disabled:opacity-40"
+          >
+            {busy ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
+            {order.payment_method === "cash"
+              ? `Yetkazib berdim (${formatSum(order.total_amount)} naqd oling)`
+              : "Yetkazib berdim"}
+          </button>
+        </>
       )}
 
       {confirmingDelivery && (
