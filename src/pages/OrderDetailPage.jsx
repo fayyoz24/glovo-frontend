@@ -182,7 +182,7 @@ export default function OrderDetailPage() {
 
       {order.status === "cancelled" && order.cancel_reason && (
         <section className="rounded-tile border-2 border-pomegranate-light bg-pomegranate-light p-4 text-sm text-pomegranate-dark">
-          Bekor qilingan sabab: {order.cancel_reason}
+          Bekor qilingan sabab: {order.cancel_reason_display || order.cancel_reason}
           {order.cancel_note && ` — ${order.cancel_note}`}
         </section>
       )}
@@ -198,7 +198,7 @@ export default function OrderDetailPage() {
         </button>
       )}
 
-      {order.status === "delivered" && !showReview && (
+      {order.status === "delivered" && !order.has_review && !showReview && (
         <button
           onClick={() => setShowReview(true)}
           className="flex w-full items-center justify-center gap-2 rounded-full bg-marigold py-3 font-display text-sm text-ink shadow-tile transition hover:bg-marigold-dark"
@@ -207,7 +207,15 @@ export default function OrderDetailPage() {
         </button>
       )}
 
-      {showReview && <ReviewForm orderId={order.id} onDone={() => setShowReview(false)} />}
+      {showReview && (
+        <ReviewForm
+          orderId={order.id}
+          onDone={() => {
+            setShowReview(false);
+            setOrder((prev) => (prev ? { ...prev, has_review: true } : prev));
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -22,6 +22,7 @@ export const courierApi = {
   acceptOrder: (assignmentId) => api.post(`/courier/orders/${assignmentId}/accept/`),
   rejectOrder: (assignmentId) => api.post(`/courier/orders/${assignmentId}/reject/`),
   markPickedUp: (orderId) => api.post(`/courier/orders/${orderId}/picked-up/`),
-  markDelivered: (orderId) => api.post(`/courier/orders/${orderId}/delivered/`),
+  markDelivered: (orderId, { cashConfirmed = false } = {}) =>
+    api.post(`/courier/orders/${orderId}/delivered/`, { cash_confirmed: cashConfirmed }),
   assignmentHistory: () => api.get("/courier/assignments/"),
 };

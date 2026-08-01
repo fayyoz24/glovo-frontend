@@ -190,10 +190,10 @@ export function CourierProvider({ children }) {
   );
 
   const markDelivered = useCallback(
-    async (orderId) => {
+    async (orderId, options) => {
       setBusy(true);
       try {
-        await courierApi.markDelivered(orderId);
+        await courierApi.markDelivered(orderId, options);
         toast.success("Buyurtma yetkazildi. Rahmat!");
         await Promise.all([refreshActiveOrders(), refreshProfile()]);
       } catch (e) {
