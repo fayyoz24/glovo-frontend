@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Wallet, Gift, HandCoins } from "lucide-react";
+import { Loader2, Wallet, Gift, HandCoins, Banknote } from "lucide-react";
 import { courierApi } from "../../api/courier";
 import { formatSum, formatDate } from "../../utils/format";
 import EmptyState from "../../components/EmptyState";
@@ -51,15 +51,38 @@ export default function CourierEarningsPage() {
         </div>
       ) : (
         <>
+          <div className="rounded-tile border-2 border-marigold bg-marigold-light p-4">
+            <div className="flex items-center gap-2">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-marigold text-white">
+                <Banknote size={16} />
+              </div>
+              <p className="text-xs font-semibold text-marigold-dark">
+                Mijozlardan jami olingan naqd pul (barcha davr)
+              </p>
+            </div>
+            <p className="mt-2 font-display text-3xl text-marigold-dark">
+              {formatSum(summary?.total_cash_collected)}
+            </p>
+            <p className="mt-1 text-xs text-ink/50">
+              Bu — hisobingizga o'tmagan, mijozlardan qo'lda olingan pul; kompaniyaga
+              topshirish/hisob-kitob qilish uchun.
+            </p>
+          </div>
+
           <div className="rounded-tile border-2 border-ink/10 bg-white p-4">
             <p className="text-xs font-semibold text-ink/50">Jami daromad ({summary?.period_days} kun)</p>
             <p className="mt-1 font-display text-3xl text-ceramic-dark">
               {formatSum(summary?.total)}
             </p>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="mt-3 grid grid-cols-4 gap-2 text-center text-xs">
               <SummaryItem icon={Wallet} label="Baza" value={formatSum(summary?.base_fee)} />
               <SummaryItem icon={Gift} label="Bonus" value={formatSum(summary?.bonus)} />
               <SummaryItem icon={HandCoins} label="Choy puli" value={formatSum(summary?.tips)} />
+              <SummaryItem
+                icon={Banknote}
+                label={`Naqd (${summary?.period_days}kun)`}
+                value={formatSum(summary?.cash_collected)}
+              />
             </div>
             <p className="mt-3 text-center text-xs text-ink/50">
               {summary?.deliveries ?? 0} ta yetkazish
@@ -82,6 +105,11 @@ export default function CourierEarningsPage() {
                         {e.order_public_id ? `#${e.order_public_id}` : e.note || "Bonus"}
                       </p>
                       <p className="text-xs text-ink/50">{formatDate(e.created_at)}</p>
+                      {Number(e.cash_collected) > 0 && (
+                        <p className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-marigold-dark">
+                          <Banknote size={12} /> Naqd olindi: {formatSum(e.cash_collected)}
+                        </p>
+                      )}
                     </div>
                     <span className="shrink-0 font-display text-ceramic-dark">
                       {formatSum(e.amount)}
