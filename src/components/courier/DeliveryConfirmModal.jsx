@@ -9,19 +9,27 @@ export default function DeliveryConfirmModal({ order, busy, onConfirm, onCancel 
       <div className="w-full max-w-sm rounded-tile bg-white p-5 shadow-card">
         {isCash ? (
           <>
-            <div className="mb-3 flex items-center gap-2">
+            <div className="mb-4 flex items-center gap-2">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-marigold-light text-marigold-dark">
                 <Wallet size={18} />
               </div>
               <h2 className="font-display text-lg text-ink">Naqd pulni tekshiring</h2>
             </div>
-            <p className="text-sm text-ink/70">
-              Mijozdan{" "}
-              <span className="font-display text-ceramic-dark">
+
+            <div className="rounded-xl bg-paper p-4 text-center">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                Mijozdan olinishi kerak bo'lgan summa
+              </p>
+              <p className="mt-1 font-display text-3xl text-ceramic-dark">
                 {formatSum(order.total_amount)}
-              </span>{" "}
-              naqd pul oldingizmi? Yetkazib berishni faqat pulni to'liq olganingizdan keyin
-              tasdiqlang.
+              </p>
+            </div>
+
+            <p className="mt-3 text-center text-sm font-semibold text-ink">
+              Siz {formatSum(order.total_amount)} naqd pul oldingizmi?
+            </p>
+            <p className="mt-1 text-center text-xs text-ink/50">
+              Yetkazib berishni faqat pulni to'liq olganingizdan keyin tasdiqlang.
             </p>
           </>
         ) : (

@@ -75,7 +75,9 @@ export default function ActiveOrderCard({ order }) {
           className="flex w-full items-center justify-center gap-2 rounded-full bg-ceramic py-3 text-sm font-display text-white shadow-tile disabled:opacity-40"
         >
           {busy ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
-          Yetkazib berdim
+          {order.payment_method === "cash"
+            ? `Yetkazib berdim (${formatSum(order.total_amount)} naqd oling)`
+            : "Yetkazib berdim"}
         </button>
       )}
 
