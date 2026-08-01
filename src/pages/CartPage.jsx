@@ -41,7 +41,7 @@ export default function CartPage() {
       <EmptyState
         icon={ShoppingBag}
         title="Savatingiz bo'sh"
-        description="Sevimli taomlaringizni tanlang va bu yerga qo'shing."
+        description="Kerakli mahsulotlaringizni tanlang va bu yerga qo'shing."
         action={
           <Link
             to="/"
@@ -107,10 +107,17 @@ export default function CartPage() {
               <QuantityStepper
                 qty={item.qty}
                 busy={busyItemId === item.id}
-                onDecrease={() =>
-                  item.qty > 1 ? updateItem(item.id, item.qty - 1) : removeItem(item.id)
-                }
-                onIncrease={() => updateItem(item.id, item.qty + 1)}
+                step={item.qty_step || 1}
+                unitType={item.unit_type}
+                onDecrease={() => {
+                  const step = Number(item.qty_step || 1);
+                  const next = +(Number(item.qty) - step).toFixed(2);
+                  next > 0 ? updateItem(item.id, next) : removeItem(item.id);
+                }}
+                onIncrease={() => {
+                  const step = Number(item.qty_step || 1);
+                  updateItem(item.id, +(Number(item.qty) + step).toFixed(2));
+                }}
               />
               <span className="font-mono text-sm font-semibold text-ceramic-dark">
                 {formatSum(item.line_total)}

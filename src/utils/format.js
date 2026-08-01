@@ -3,6 +3,16 @@ export function formatSum(value) {
   return `${n.toLocaleString("ru-RU").replace(/,/g, " ")} so'm`;
 }
 
+export function formatQty(qty, unitType = "piece") {
+  const n = Number(qty ?? 0);
+  if (unitType === "kg") {
+    // Ortiqcha nollarni olib tashlaymiz: 1.50 -> 1.5, 2.00 -> 2
+    const trimmed = n.toFixed(2).replace(/\.?0+$/, "");
+    return `${trimmed} kg`;
+  }
+  return `${n}`;
+}
+
 export function formatDate(iso) {
   if (!iso) return "";
   const d = new Date(iso);

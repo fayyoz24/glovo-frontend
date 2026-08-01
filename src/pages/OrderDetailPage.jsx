@@ -198,7 +198,7 @@ export default function OrderDetailPage() {
         </button>
       )}
 
-      {order.status === "delivered" && !order.has_review && !showReview && (
+      {order.status === "delivered" && !showReview && (
         <button
           onClick={() => setShowReview(true)}
           className="flex w-full items-center justify-center gap-2 rounded-full bg-marigold py-3 font-display text-sm text-ink shadow-tile transition hover:bg-marigold-dark"
@@ -207,21 +207,7 @@ export default function OrderDetailPage() {
         </button>
       )}
 
-      {order.status === "delivered" && order.has_review && (
-        <div className="flex items-center justify-center gap-2 rounded-full border-2 border-ink/10 py-3 text-sm font-semibold text-ink/50">
-          <Star size={16} className="fill-marigold text-marigold" /> Siz bu buyurtmani baholagansiz
-        </div>
-      )}
-
-      {showReview && (
-        <ReviewForm
-          orderId={order.id}
-          onDone={() => {
-            setShowReview(false);
-            setOrder((prev) => (prev ? { ...prev, has_review: true } : prev));
-          }}
-        />
-      )}
+      {showReview && <ReviewForm orderId={order.id} onDone={() => setShowReview(false)} />}
     </div>
   );
 }

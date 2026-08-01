@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useNavigate } from "react-router-dom";
 import { formatSum } from "../utils/format";
-import QuantityStepper from "./QuantityStepper";
+import QuantityStepper, { QtyIncrementPicker } from "./QuantityStepper";
 
 export default function ProductModal({ productId, onClose }) {
   const [product, setProduct] = useState(null);
@@ -14,6 +14,7 @@ export default function ProductModal({ productId, onClose }) {
   const [variantId, setVariantId] = useState(null);
   const [selected, setSelected] = useState({}); // groupId -> Set(optionId)
   const [qty, setQty] = useState(1);
+  const [activeStep, setActiveStep] = useState(1);
   const [instructions, setInstructions] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -42,6 +43,8 @@ export default function ProductModal({ productId, onClose }) {
           initial[g.id] = new Set();
         });
         setSelected(initial);
+        setQty(1);
+        setActiveStep(1);
       })
       .catch(() => {
         toast.error("Mahsulot topilmadi");
@@ -170,6 +173,7 @@ export default function ProductModal({ productId, onClose }) {
               <div className="mt-2 flex items-center gap-2">
                 <p className="font-mono text-base font-semibold text-ceramic-dark">
                   {formatSum(activeVariant ? activeVariant.final_price : basePrice)}
+                  {product.unit_type === "kg" && <span className="text-sm font-normal text-ink/50"> / kg</span>}
                 </p>
                 {!activeVariant && product.has_discount && (
                   <>
@@ -281,18 +285,35 @@ export default function ProductModal({ productId, onClose }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 border-t-2 border-ink/10 bg-white px-4 py-3">
-              <QuantityStepper qty={qty} onDecrease={() => setQty((q) => Math.max(1, q - 1))} onIncrease={() => setQty((q) => q + 1)} />
-              <button
-                onClick={handleAdd}
-                disabled={submitting || !isOrderable}
-                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-marigold py-3 font-display text-sm text-ink shadow-tile transition hover:bg-marigold-dark disabled:opacity-40"
-              >
-                {submitting && <Loader2 size={16} className="animate-spin" />}
-                {isOrderable
-                  ? `Savatga qo'shish · ${formatSum(unitPrice * qty)}`
-                  : "Mavjud emas"}
-              </button>
+            <div className="flex flex-col gap-2.5 border-t-2 border-ink/10 bg-white px-4 py-3">
+              {product.unit_type === "kg" && (
+                <QtyIncrementPicker
+                  increments={product.qty_increments || [1]}
+                  activeStep={activeStep}
+                  onSelect={setActiveStep}
+                  disabled={submitting}
+                />
+              )}
+              <div className="flex items-center gap-3">
+                <QuantityStepper
+                  qty={qty}
+                  step={activeStep}
+                  unitType={product.unit_type}
+                  min={activeStep}
+                  onDecrease={() => setQty((q) => Math.max(activeStep, +(q - activeStep).toFixed(2)))}
+                  onIncrease={() => setQty((q) => +(q + activeStep).toFixed(2))}
+                />
+                <button
+                  onClick={handleAdd}
+                  disabled={submitting || !isOrderable}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-marigold py-3 font-display text-sm text-ink shadow-tile transition hover:bg-marigold-dark disabled:opacity-40"
+                >
+                  {submitting && <Loader2 size={16} className="animate-spin" />}
+                  {isOrderable
+                    ? `Savatga qo'shish · ${formatSum(unitPrice * qty)}`
+                    : "Mavjud emas"}
+                </button>
+              </div>
             </div>
           </>
         )}

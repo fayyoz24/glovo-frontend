@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 import { merchantTypeLabel } from "../utils/merchantTypes";
 
 export default function MerchantCard({ merchant }) {
-  const closed = (merchant.status && merchant.status !== "active") || merchant.is_closed;
+  const closed = merchant.status && merchant.status !== "active";
   return (
     <Link
       to={`/merchants/${merchant.id}`}

@@ -4,7 +4,6 @@ import { MapPin, Plus, Loader2, Banknote, CreditCard, ArrowRight } from "lucide-
 import { locationsApi } from "../api/locations";
 import { ordersApi } from "../api/orders";
 import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { formatSum, PAYMENT_METHOD_LABEL } from "../utils/format";
 import AddressForm from "../components/AddressForm";
@@ -19,7 +18,6 @@ const PAYMENT_METHODS = [
 
 export default function CheckoutPage() {
   const { cart, refresh } = useCart();
-  const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -42,15 +40,6 @@ export default function CheckoutPage() {
       })
       .finally(() => setLoadingAddresses(false));
   }, []);
-
-  // Birinchi buyurtmadan avval telefon raqami kiritilgan bo'lishi shart —
-  // aks holda profil sahifasidagi telefon paneliga yo'naltiramiz (do'stona ohangda).
-  useEffect(() => {
-    if (user && !user.phone) {
-      toast.info("Telefon raqamingizni kiriting, keyin buyurtma berishni davom ettiramiz 🙂");
-      navigate("/profile?requirePhone=1", { replace: true });
-    }
-  }, [user, navigate, toast]);
 
   const createAddress = async (payload) => {
     try {
@@ -80,11 +69,6 @@ export default function CheckoutPage() {
       toast.success("Buyurtma qabul qilindi!");
       navigate(`/orders/${order.id}`, { replace: true });
     } catch (e) {
-      if (e?.data?.code === "phone_required") {
-        toast.info("Telefon raqamingizni kiriting, keyin buyurtma berishni davom ettiramiz 🙂");
-        navigate("/profile?requirePhone=1", { replace: true });
-        return;
-      }
       toast.error(e.message || "Buyurtmani rasmiylashtirib bo'lmadi");
     } finally {
       setPlacing(false);

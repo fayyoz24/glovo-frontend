@@ -175,6 +175,7 @@ export default function MerchantProductsPage() {
                       </span>
                     )}
                     {product.category_name && <span>· {product.category_name}</span>}
+                    {product.unit_type === "kg" && <span>· kg</span>}
                     {product.track_stock && (
                       <span>· Ombor: {product.stock_qty}</span>
                     )}
@@ -225,6 +226,7 @@ function ProductForm({ product, categoryOptions, onCancel, onSaved }) {
     discount_percent: product?.discount_percent ?? 0,
     track_stock: product?.track_stock ?? true,
     stock_qty: product?.stock_qty ?? 0,
+    unit_type: product?.unit_type || "piece",
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(product?.image || null);
@@ -257,6 +259,7 @@ function ProductForm({ product, categoryOptions, onCancel, onSaved }) {
         discount_percent: Number(form.discount_percent) || 0,
         track_stock: form.track_stock,
         stock_qty: Number(form.stock_qty) || 0,
+        unit_type: form.unit_type,
         ...(form.category ? { category: form.category } : {}),
         ...(imageFile ? { image: imageFile } : {}),
       };
@@ -320,9 +323,46 @@ function ProductForm({ product, categoryOptions, onCancel, onSaved }) {
         </div>
       </div>
 
+      <div>
+        <label className="mb-1 block text-xs font-semibold text-ink/60">O'lchov birligi</label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setForm((f) => ({ ...f, unit_type: "piece" }))}
+            className={`flex-1 rounded-lg border-2 py-2 text-sm font-semibold transition ${
+              form.unit_type === "piece"
+                ? "border-ceramic bg-ceramic-light text-ceramic-dark"
+                : "border-ink/10 bg-white text-ink/60"
+            }`}
+          >
+            Dona
+          </button>
+          <button
+            type="button"
+            onClick={() => setForm((f) => ({ ...f, unit_type: "kg" }))}
+            className={`flex-1 rounded-lg border-2 py-2 text-sm font-semibold transition ${
+              form.unit_type === "kg"
+                ? "border-ceramic bg-ceramic-light text-ceramic-dark"
+                : "border-ink/10 bg-white text-ink/60"
+            }`}
+          >
+            Kilogramm (kg)
+          </button>
+        </div>
+        {form.unit_type === "kg" && (
+          <p className="mt-1 text-[11px] text-ink/40">
+            {Number(form.base_price) > 100000
+              ? "1 kg narxi 100 000 so'mdan qimmat — mijozlar 1, 0.5 va 0.1 kg qadam bilan qo'sha oladi."
+              : "Mijozlar 1 va 0.5 kg qadam bilan qo'sha oladi. Narx 100 000 so'mdan oshsa, 0.1 kg qadam ham qo'shiladi."}
+          </p>
+        )}
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-semibold text-ink/60">Narxi (so'm)</label>
+          <label className="mb-1 block text-xs font-semibold text-ink/60">
+            Narxi (so'm){form.unit_type === "kg" ? " — 1 kg uchun" : " — 1 dona uchun"}
+          </label>
           <input
             type="number"
             min={0}

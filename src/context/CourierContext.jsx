@@ -71,14 +71,10 @@ export function CourierProvider({ children }) {
       onOpen: () => setSocketConnected(true),
       onClose: () => setSocketConnected(false),
       onOffer: (data) => {
-        // MUHIM: `id` va `expires_in_seconds` spread'dan KEYIN qo'yilishi shart —
-        // aks holda `...data.order` ichidagi `order.id` (buyurtma ID) uni bosib
-        // o'tib, `accept/` so'roviga noto'g'ri (assignment o'rniga order) ID
-        // yuborilishiga va backendda 404 (AssignmentNotFound) ga olib keladi.
         setOffer({
-          ...data.order,
           id: data.assignment_id,
           expires_in_seconds: data.expires_in_seconds,
+          ...data.order,
         });
         toast.info("Yangi buyurtma taklifi keldi!");
       },
