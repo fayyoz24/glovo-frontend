@@ -69,6 +69,11 @@ export default function CheckoutPage() {
       toast.success("Buyurtma qabul qilindi!");
       navigate(`/orders/${order.id}`, { replace: true });
     } catch (e) {
+      if (e.data?.code === "phone_required") {
+        toast.info("Buyurtma berish uchun telefon raqamingizni kiriting — hozir profilga o'tkazamiz.");
+        navigate("/profile", { state: { focusPhone: true } });
+        return;
+      }
       toast.error(e.message || "Buyurtmani rasmiylashtirib bo'lmadi");
     } finally {
       setPlacing(false);

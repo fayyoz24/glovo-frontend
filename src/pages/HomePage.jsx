@@ -4,7 +4,7 @@ import { merchantsApi } from "../api/merchants";
 import MerchantCard from "../components/MerchantCard";
 import { MerchantCardSkeleton, Grid } from "../components/Skeletons";
 import EmptyState from "../components/EmptyState";
-import { MERCHANT_TYPES } from "../utils/merchantTypes";
+import { MERCHANT_TYPES, HOME_HERO_CONTENT } from "../utils/merchantTypes";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useAuth } from "../context/AuthContext";
 
@@ -53,12 +53,14 @@ export default function HomePage() {
     }
   };
 
+  const hero = HOME_HERO_CONTENT[type] || HOME_HERO_CONTENT[""];
+
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-tile border-2 border-ink/10 bg-gradient-to-br from-ink to-[#33291d] px-6 py-8 text-paper shadow-card">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-marigold">Dasturxon</p>
         <h1 className="mt-2 max-w-md font-display text-2xl leading-tight sm:text-3xl">
-          Sevimli taomingiz — bir necha bosishda uyingizga
+          {hero.title}
         </h1>
         <button
           onClick={requestLocation}
@@ -69,7 +71,7 @@ export default function HomePage() {
             ? "Aniqlanmoqda..."
             : coords
             ? "Joylashuv aniqlandi"
-            : "Yaqin atrofdagilarni ko'rish"}
+            : hero.cta}
         </button>
       </section>
 

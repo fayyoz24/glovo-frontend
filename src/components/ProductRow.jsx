@@ -37,6 +37,7 @@ export default function ProductRow({ product, onOpen }) {
         <div className="mt-1 flex items-center gap-2">
           <p className="font-mono text-sm font-semibold text-ceramic-dark">
             {formatSum(displayPrice)}
+            {product.unit_type === "kg" && <span className="font-body text-xs font-normal text-ink/50"> / kg</span>}
           </p>
           {hasDiscount && (
             <p className="font-mono text-xs text-ink/40 line-through">
