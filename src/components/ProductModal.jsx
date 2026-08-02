@@ -8,6 +8,23 @@ import { useNavigate } from "react-router-dom";
 import { formatSum } from "../utils/format";
 import QuantityStepper, { QtyIncrementPicker } from "./QuantityStepper";
 
+// Izoh maydonining placeholder matni do'kon turiga qarab o'zgaradi
+// (restoran/fastfood, do'kon-grocery, dorixona, gulchilik, express) —
+// ProductCategory.merchant_type_code orqali aniqlanadi.
+const INSTRUCTIONS_PLACEHOLDER_BY_TYPE = {
+  food: "Masalan: piyozsiz bo'lsin",
+  grocery: "Masalan: yaroqlilik muddati uzoqroq bo'lsin",
+  pharmacy: "Masalan: dorixonachiga qo'shimcha eslatma",
+  flowers: "Masalan: otkritkaga yozuv: 'Tug'ilgan kuning bilan!'",
+  express: "Masalan: yetkazishga oid qo'shimcha eslatma",
+};
+const DEFAULT_INSTRUCTIONS_PLACEHOLDER = "Qo'shimcha izoh qoldirishingiz mumkin";
+
+function getInstructionsPlaceholder(product) {
+  const typeCode = product?.category?.merchant_type_code;
+  return INSTRUCTIONS_PLACEHOLDER_BY_TYPE[typeCode] || DEFAULT_INSTRUCTIONS_PLACEHOLDER;
+}
+
 export default function ProductModal({ productId, onClose }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -281,7 +298,7 @@ export default function ProductModal({ productId, onClose }) {
                   onChange={(e) => setInstructions(e.target.value)}
                   maxLength={300}
                   rows={2}
-                  placeholder="Masalan: piyozsiz bo'lsin"
+                  placeholder={getInstructionsPlaceholder(product)}
                   className="w-full rounded-xl border-2 border-ink/15 bg-white p-3 text-sm outline-none focus:border-ceramic"
                 />
               </div>
