@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { merchantApi } from "../api/merchant";
 import { useToast } from "./ToastContext";
 
@@ -13,6 +14,7 @@ const ACTIVE_STATUSES = ["merchant_confirmed", "preparing", "ready_for_pickup"];
 
 export function MerchantProvider({ children }) {
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -95,13 +97,14 @@ export function MerchantProvider({ children }) {
         await merchantApi.confirmOrder(orderId);
         toast.success("Buyurtma qabul qilindi");
         await refreshOrders({ silent: true });
+        navigate("/merchant/active");
       } catch (e) {
         toast.error(e.message || "Qabul qilib bo'lmadi");
       } finally {
         setBusyId(null);
       }
     },
-    [toast, refreshOrders]
+    [toast, refreshOrders, navigate]
   );
 
   const rejectOrder = useCallback(

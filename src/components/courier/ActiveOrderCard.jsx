@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Loader2, Navigation, PackageCheck, Store, Wallet, MapPin, Home } from "lucide-react";
 import { useCourier } from "../../context/CourierContext";
+import { useToast } from "../../context/ToastContext";
 import { formatSum } from "../../utils/format";
 import { openNavigation } from "../../utils/navigation";
 import StatusBadge from "../StatusBadge";
@@ -8,7 +9,15 @@ import DeliveryConfirmModal from "./DeliveryConfirmModal";
 
 export default function ActiveOrderCard({ order }) {
   const { markPickedUp, markDelivered, busy } = useCourier();
+  const toast = useToast();
   const [confirmingDelivery, setConfirmingDelivery] = useState(false);
+
+  const handleNavigate = (lat, lng, fallbackText) => {
+    const opened = openNavigation(lat, lng, fallbackText);
+    if (!opened) {
+      toast.error("Manzil koordinatalari topilmadi — navigatsiya ochilmadi");
+    }
+  };
 
   const isAssigned = order.status === "courier_assigned";
   const isOnTheWay = order.status === "picked_up" || order.status === "on_the_way";
@@ -79,7 +88,7 @@ export default function ActiveOrderCard({ order }) {
         <>
           <button
             type="button"
-            onClick={() => openNavigation(order.branch_lat, order.branch_lng)}
+            onClick={() => handleNavigate(order.branch_lat, order.branch_lng, order.branch_address || order.branch_name)}
             className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-ink/15 py-3 text-sm font-semibold text-ink/70"
           >
             <Store size={16} /> Do'konga yo'nalish
@@ -99,7 +108,7 @@ export default function ActiveOrderCard({ order }) {
         <>
           <button
             type="button"
-            onClick={() => openNavigation(destLat, destLng)}
+            onClick={() => handleNavigate(destLat, destLng, destLine)}
             className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-ink/15 py-3 text-sm font-semibold text-ink/70"
           >
             <MapPin size={16} /> Yo'lga chiqdik — navigatsiya

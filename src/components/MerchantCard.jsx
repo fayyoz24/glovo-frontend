@@ -3,7 +3,10 @@ import { Star } from "lucide-react";
 import { merchantTypeLabel } from "../utils/merchantTypes";
 
 export default function MerchantCard({ merchant }) {
-  const closed = merchant.status && merchant.status !== "active";
+  // is_closed backendda filial ish vaqti + accepting_orders holatidan hisoblanadi
+  // (merchant.status esa do'konning umumiy hisob holati — active/suspended/pending —
+  // bo'lib, "hozir yopiqmi" degan savolga javob bermaydi).
+  const closed = !!merchant.is_closed;
   return (
     <Link
       to={`/merchants/${merchant.id}`}
@@ -14,22 +17,26 @@ export default function MerchantCard({ merchant }) {
           <img
             src={merchant.cover}
             alt=""
-            className="h-full w-full object-cover transition group-hover:scale-105"
+            className={`h-full w-full object-cover transition group-hover:scale-105 ${closed ? "blur-[2px] grayscale" : ""}`}
           />
         ) : merchant.logo ? (
           <img
             src={merchant.logo}
             alt=""
-            className="h-full w-full object-cover transition group-hover:scale-105"
+            className={`h-full w-full object-cover transition group-hover:scale-105 ${closed ? "blur-[2px] grayscale" : ""}`}
           />
         ) : (
-          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-marigold-light to-sand font-display text-2xl text-marigold-dark">
+          <div
+            className={`grid h-full w-full place-items-center bg-gradient-to-br from-marigold-light to-sand font-display text-2xl text-marigold-dark ${closed ? "blur-[2px] grayscale" : ""}`}
+          >
             {merchant.name?.[0]?.toUpperCase()}
           </div>
         )}
         {closed && (
-          <div className="absolute inset-0 grid place-items-center bg-ink/60 text-xs font-semibold uppercase tracking-wide text-paper">
-            Yopiq
+          <div className="absolute inset-0 grid place-items-center bg-ink/50">
+            <span className="rounded-full bg-ink/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+              Yopiq
+            </span>
           </div>
         )}
         {merchant.cover && merchant.logo && (
