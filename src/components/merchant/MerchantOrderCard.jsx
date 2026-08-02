@@ -34,6 +34,31 @@ export default function MerchantOrderCard({ order }) {
         <span className="font-display text-ceramic-dark">{formatSum(order.total_amount)}</span>
       </div>
 
+      {order.items?.length > 0 && (
+        <ul className="space-y-1.5 rounded-xl border-2 border-ink/10 bg-white p-3 text-sm">
+          {order.items.map((item) => (
+            <li key={item.id} className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <span className="font-semibold text-ink">{item.qty}×</span>{" "}
+                <span className="text-ink">{item.product_name_snapshot}</span>
+                {item.variant_snapshot && (
+                  <span className="text-ink/50"> ({item.variant_snapshot})</span>
+                )}
+                {item.modifiers?.length > 0 && (
+                  <p className="mt-0.5 text-xs text-ink/50">
+                    {item.modifiers.map((m) => m.modifier_name).join(", ")}
+                  </p>
+                )}
+                {item.instructions && (
+                  <p className="mt-0.5 text-xs italic text-ink/60">"{item.instructions}"</p>
+                )}
+              </div>
+              <span className="shrink-0 font-mono text-xs text-ink/50">{formatSum(item.line_total)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {isNew && !showReject && (
         <div className="flex gap-2">
           <button

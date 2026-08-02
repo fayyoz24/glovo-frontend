@@ -34,15 +34,27 @@ export default function MerchantHistoryPage() {
           {orders.map((o) => (
             <div
               key={o.id}
-              className="flex items-center gap-3 rounded-tile border-2 border-ink/10 bg-white p-4"
+              className="space-y-2 rounded-tile border-2 border-ink/10 bg-white p-4"
             >
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-ink">#{o.public_id}</p>
-                <p className="text-xs text-ink/50">
-                  {formatDate(o.placed_at)} · {formatSum(o.total_amount)}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-ink">#{o.public_id}</p>
+                  <p className="text-xs text-ink/50">
+                    {formatDate(o.placed_at)} · {formatSum(o.total_amount)}
+                  </p>
+                </div>
+                <StatusBadge status={o.status} />
               </div>
-              <StatusBadge status={o.status} />
+              {o.items?.length > 0 && (
+                <ul className="space-y-0.5 border-t border-ink/10 pt-2 text-xs text-ink/70">
+                  {o.items.map((item) => (
+                    <li key={item.id}>
+                      {item.qty}× {item.product_name_snapshot}
+                      {item.variant_snapshot && ` (${item.variant_snapshot})`}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </div>

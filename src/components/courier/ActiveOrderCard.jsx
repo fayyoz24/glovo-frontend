@@ -63,6 +63,18 @@ export default function ActiveOrderCard({ order }) {
         <span className="font-display text-ceramic-dark">{formatSum(order.total_amount)}</span>
       </div>
 
+      {destLine && (
+        <div className="flex items-start gap-2 rounded-xl bg-paper p-3 text-sm">
+          <Home size={16} className="mt-0.5 shrink-0 text-ink/40" />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink/40">
+              Yetkazish manzili
+            </p>
+            <p className="truncate text-ink">{destLine}</p>
+          </div>
+        </div>
+      )}
+
       {isAssigned && (
         <>
           <button
@@ -85,17 +97,6 @@ export default function ActiveOrderCard({ order }) {
 
       {isOnTheWay && (
         <>
-          {destLine && (
-            <div className="flex items-start gap-2 rounded-xl bg-paper p-3 text-sm">
-              <Home size={16} className="mt-0.5 shrink-0 text-ink/40" />
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink/40">
-                  Yetkazish manzili
-                </p>
-                <p className="truncate text-ink">{destLine}</p>
-              </div>
-            </div>
-          )}
           <button
             type="button"
             onClick={() => openNavigation(destLat, destLng)}

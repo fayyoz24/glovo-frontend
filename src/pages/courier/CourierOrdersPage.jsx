@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Loader2, ListOrdered, Store } from "lucide-react";
+import { Loader2, ListOrdered, Store, MapPin, Wallet } from "lucide-react";
 import { courierApi } from "../../api/courier";
-import { formatDate } from "../../utils/format";
+import { formatDate, formatSum } from "../../utils/format";
 import EmptyState from "../../components/EmptyState";
 
 const ASSIGNMENT_STATUS_LABEL = {
@@ -49,25 +49,42 @@ export default function CourierOrdersPage() {
           {assignments.map((a) => (
             <div
               key={a.id}
-              className="flex items-center gap-3 rounded-tile border-2 border-ink/10 bg-white p-4"
+              className="flex items-start gap-3 rounded-tile border-2 border-ink/10 bg-white p-4"
             >
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sand text-ink/60">
                 <Store size={16} />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-ink">{a.merchant_name}</p>
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="truncate font-semibold text-ink">{a.merchant_name}</p>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      ASSIGNMENT_STATUS_TONE[a.status] || "bg-sand text-ink"
+                    }`}
+                  >
+                    {ASSIGNMENT_STATUS_LABEL[a.status] || a.status}
+                  </span>
+                </div>
                 <p className="text-xs text-ink/50">
                   #{a.order_public_id} · {formatDate(a.assigned_at)}
                   {a.distance_km != null && ` · ~${a.distance_km} km`}
                 </p>
+                {a.delivery_address && (
+                  <p className="flex items-center gap-1 text-xs text-ink/60">
+                    <MapPin size={12} className="shrink-0" />
+                    <span className="truncate">{a.delivery_address}</span>
+                  </p>
+                )}
+                <div className="flex items-center gap-3 text-xs text-ink/60">
+                  {a.item_count != null && <span>{a.item_count} mahsulot</span>}
+                  {a.total_amount != null && (
+                    <span className="flex items-center gap-1">
+                      <Wallet size={12} />
+                      {formatSum(a.total_amount)}
+                    </span>
+                  )}
+                </div>
               </div>
-              <span
-                className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                  ASSIGNMENT_STATUS_TONE[a.status] || "bg-sand text-ink"
-                }`}
-              >
-                {ASSIGNMENT_STATUS_LABEL[a.status] || a.status}
-              </span>
             </div>
           ))}
         </div>
