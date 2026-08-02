@@ -292,7 +292,11 @@ export default function ProductModal({ productId, onClose }) {
                 <QtyIncrementPicker
                   increments={product.qty_increments || [1]}
                   activeStep={activeStep}
-                  onSelect={setActiveStep}
+                  onSelect={(inc) => {
+                    setActiveStep(inc);
+                    setPrevQty(qty);
+                    setQty(inc);
+                  }}
                   disabled={submitting}
                 />
               )}

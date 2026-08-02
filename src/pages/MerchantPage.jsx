@@ -19,6 +19,7 @@ export default function MerchantPage() {
   const [categoryId, setCategoryId] = useState("");
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState([]);
+  const [allCategoryNames, setAllCategoryNames] = useState(new Set());
   const [loadingMerchant, setLoadingMerchant] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [activeProductId, setActiveProductId] = useState(null);
@@ -53,15 +54,30 @@ export default function MerchantPage() {
     return () => clearTimeout(handle);
   }, [id, branchId, categoryId, query]);
 
+  // Filial uchun TO'LIQ (filtrlanmagan) mahsulot ro'yxatini alohida olib,
+  // shundan qaysi kategoriyalar haqiqatda ishlatilayotganini aniqlaymiz —
+  // bu yuqoridagi `products` (categoryId bo'yicha filtrlangan) dan mustaqil,
+  // aks holda kategoriya tanlanganda chip'lar bittaga qisqarib qolardi.
+  useEffect(() => {
+    if (!branchId) return;
+    catalogApi
+      .branchProducts(id, { branch: branchId })
+      .then((data) => {
+        const names = new Set((data.results ?? data).map((p) => p.category_name).filter(Boolean));
+        setAllCategoryNames(names);
+      })
+      .catch(() => setAllCategoryNames(new Set()));
+  }, [id, branchId]);
+
   const activeBranch = useMemo(
     () => merchant?.branches?.find((b) => b.id === branchId),
     [merchant, branchId]
   );
 
-  const usedCategories = useMemo(() => {
-    const names = new Set(products.map((p) => p.category_name).filter(Boolean));
-    return categories.filter((c) => names.has(c.name_uz));
-  }, [categories, products]);
+  const usedCategories = useMemo(
+    () => categories.filter((c) => allCategoryNames.has(c.name_uz)),
+    [categories, allCategoryNames]
+  );
 
   if (loadingMerchant) {
     return (
